@@ -22,7 +22,21 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 
 gulp.task('watch', function() {
-  var bundler = watchify('./src/index.js');
+  var bundler = browserify('./src/index.js', {
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    debug: true
+   });
+  
+  var bundle = function() {
+    return bundler
+      .bundle()
+      .on('error', handleErrors)
+      .pipe(source('app.js'))
+      .pipe(gulp.dest('./build'));
+   };
+  bundler = watchify(bundler).on('update', rebundle);
 
   // Optionally, you can apply transforms
   // and other configuration options on the
